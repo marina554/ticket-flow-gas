@@ -2,8 +2,80 @@
 <html>
   <head>
     <base target="_top">
-  </head>
-  <body>
     
+  </head>
+
+  <body>
+    <h1>TicketFlow</h1>
+
+    <h2>チケット作成</h2>
+
+    <form id="ticketForm">
+      <div>
+        <label for="title">Title</label><br>
+        <input type="text" id="title" name="title" required>
+      </div>
+
+      <div>
+        <label for="description">Description</label><br>
+        <textarea id="description" name="description" required></textarea>
+      </div>
+
+      <div>
+        <label for="type">Type</label><br>
+        <select id="type" name="type" required>
+          <option value="">選択してください</option>
+          <option value="Feature">Feature</option>
+          <option value="Bug">Bug</option>
+          <option value="Task">Task</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="priority">Priority</label><br>
+        <select id="priority" name="priority" required>
+          <option value="">選択してください</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="assigneeId">Assignee</label><br>
+        <select id="assigneeId" name="assigneeId">
+          <option value="">未設定</option>
+          <option value="U001">Marina</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="reviewerId">Reviewer</label><br>
+        <select id="reviewerId" name="reviewerId">
+          <option value="">未設定</option>
+          <option value="U001">Marina</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="acceptanceCriteria">Acceptance Criteria</label><br>
+        <textarea id="acceptanceCriteria" name="acceptanceCriteria" required></textarea>
+      </div>
+
+      <div>
+        <label for="dueDate">Due Date</label><br>
+        <input type="date" id="dueDate" name="dueDate">
+      </div>
+
+      <div>
+        <label for="githubIssue">GitHub Issue</label><br>
+        <input type="number" id="githubIssue" name="githubIssue" min="1">
+      </div>
+
+      <button type="submit">チケットを作成</button>
+    </form>
+
+    <p id="message"></p>
+    <?!= include('script'); ?>
   </body>
 </html>

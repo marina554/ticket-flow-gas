@@ -1,9 +1,41 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-  </head>
-  <body>
-    
-  </body>
-</html>
+<script>
+  document.getElementById('ticketForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const ticketData = {
+      title: document.getElementById('title').value,
+      description: document.getElementById('description').value,
+      type: document.getElementById('type').value,
+      priority: document.getElementById('priority').value,
+      assigneeId: document.getElementById('assigneeId').value,
+      reviewerId: document.getElementById('reviewerId').value,
+      acceptanceCriteria: document.getElementById('acceptanceCriteria').value,
+      dueDate: document.getElementById('dueDate').value,
+      githubIssue: document.getElementById('githubIssue').value
+    };
+
+    const message = document.getElementById('message');
+    message.textContent = 'チケットを作成しています...';
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        google.script.run
+          .withSuccessHandler(function(webAppUrl) {
+            const detailUrl =
+              `${webAppUrl}?page=detail&ticketId=${encodeURIComponent(result.ticketId)}`;
+
+            window.top.location.href = detailUrl;
+          })
+          .withFailureHandler(function(error) {
+            message.textContent =
+              `遷移先URLの取得に失敗しました: ${error.message}`;
+          })
+          .getWebAppUrl();
+      })
+      .withFailureHandler(function(error) {
+        message.textContent =
+          `エラー: ${error.message}`;
+      })
+      .createTicket(ticketData);
+  });
+</script>

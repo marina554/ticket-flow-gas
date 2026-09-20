@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+
+  <body>
+    <h1>TicketFlow</h1>
+
+    <h2>チケット詳細</h2>
+
+    <div id="ticketDetail">
+      <p id="ticketId">チケット情報を読み込んでいます...</p>
+    </div>
+
+    <script>
+      const ticketId = '<?= ticketId ?>';
+
+      if (ticketId) {
+        document.getElementById('ticketId').textContent =
+          `Ticket ID: ${ticketId}`;
+      } else {
+        document.getElementById('ticketId').textContent =
+          'Ticket IDが指定されていません。';
+      }
+    </script>
+
+  </body>
+</html>
