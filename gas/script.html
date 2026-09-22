@@ -1,4 +1,8 @@
 <script>
+  // ========================================
+  // チケット作成
+  // ========================================
+
   document.getElementById('ticketForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -38,4 +42,142 @@
       })
       .createTicket(ticketData);
   });
+
+
+  // ========================================
+  // チケット一覧
+  // ========================================
+
+  let ticketsData = [];
+
+
+  // ========================================
+  // チケット一覧を表示
+  // ========================================
+
+  function displayTickets(tickets) {
+    const message = document.getElementById('ticketListMessage');
+    const tableBody = document.getElementById('ticketTableBody');
+
+    tableBody.innerHTML = '';
+
+    if (tickets.length === 0) {
+      message.textContent = '条件に一致するチケットはありません。';
+      return;
+    }
+
+    message.textContent = `取得成功：${tickets.length}件`;
+
+    tickets.forEach(function(ticket) {
+      const row = document.createElement('tr');
+
+      row.innerHTML = `
+        <td>
+          <a href="#" onclick="openTicketDetail('${ticket['Ticket ID']}'); return false;">
+            ${ticket['Ticket ID']}
+          </a>
+        </td>
+        <td>${ticket['Title']}</td>
+        <td>${ticket['Type']}</td>
+        <td>${ticket['Priority']}</td>
+        <td>${ticket['Status']}</td>
+        <td>${ticket['Assignee ID'] || ''}</td>
+        <td>${ticket['Due Date'] || ''}</td>
+      `;
+
+      tableBody.appendChild(row);
+    });
+  }
+
+  function openTicketDetail(ticketId) {
+  google.script.run
+    .withSuccessHandler(function(webAppUrl) {
+      const detailUrl =
+        `${webAppUrl}?page=detail&ticketId=${encodeURIComponent(ticketId)}`;
+
+      window.top.location.href = detailUrl;
+    })
+    .withFailureHandler(function(error) {
+      alert(`詳細画面への遷移に失敗しました: ${error.message}`);
+    })
+    .getWebAppUrl();
+}
+
+
+  // ========================================
+  // フィルタ適用
+  // ========================================
+
+  function applyFilters() {
+    const status =
+      document.getElementById('statusFilter').value;
+
+    const priority =
+      document.getElementById('priorityFilter').value;
+
+    const assignee =
+      document.getElementById('assigneeFilter').value;
+
+    const filteredTickets = ticketsData.filter(function(ticket) {
+      const statusMatch =
+        !status || ticket['Status'] === status;
+
+      const priorityMatch =
+        !priority || ticket['Priority'] === priority;
+
+      const assigneeMatch =
+        !assignee || ticket['Assignee ID'] === assignee;
+
+      return statusMatch && priorityMatch && assigneeMatch;
+    });
+
+    displayTickets(filteredTickets);
+  }
+
+
+  // ========================================
+  // チケット一覧取得
+  // ========================================
+
+  function loadTickets() {
+    const message =
+      document.getElementById('ticketListMessage');
+
+    message.textContent =
+      'チケット一覧を取得しています...';
+
+    google.script.run
+      .withSuccessHandler(function(tickets) {
+        ticketsData = tickets;
+
+        displayTickets(ticketsData);
+      })
+      .withFailureHandler(function(error) {
+        message.textContent =
+          `チケット一覧の取得に失敗しました: ${error.message}`;
+      })
+      .getTickets();
+  }
+
+
+  // ========================================
+  // フィルタ変更時に再表示
+  // ========================================
+
+  document.getElementById('statusFilter')
+    .addEventListener('change', applyFilters);
+
+  document.getElementById('priorityFilter')
+    .addEventListener('change', applyFilters);
+
+  document.getElementById('assigneeFilter')
+    .addEventListener('change', applyFilters);
+
+
+  // ========================================
+  // ページ読み込み時にチケット一覧を取得
+  // ========================================
+
+  loadTickets();
+
 </script>

@@ -139,3 +139,43 @@ function include(filename) {
 function getWebAppUrl() {
   return ScriptApp.getService().getUrl();
 }
+
+function getTickets() {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ticketsSheet = spreadsheet.getSheetByName('Tickets');
+
+  const values = ticketsSheet.getDataRange().getValues();
+
+  // ヘッダー行だけの場合は空配列を返す
+  if (values.length <= 1) {
+    return [];
+  }
+
+  const headers = values[0];
+
+  return values.slice(1).map((row) => {
+    const ticket = {};
+
+    headers.forEach((header, index) => {
+      let value = row[index];
+
+      // Date型は文字列に変換してブラウザへ返す
+      if (value instanceof Date) {
+        value = Utilities.formatDate(
+          value,
+          Session.getScriptTimeZone(),
+          'yyyy-MM-dd HH:mm:ss'
+        );
+      }
+
+      ticket[header] = value;
+    });
+
+    return ticket;
+  });
+}
+
+function testGetTickets() {
+  const tickets = getTickets();
+  console.log(tickets);
+}

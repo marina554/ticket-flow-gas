@@ -8,7 +8,59 @@
   <body>
     <h1>TicketFlow</h1>
 
+    <h2>チケット一覧</h2>
+
+    <div id="ticketFilters">
+  <label for="statusFilter">Status</label>
+  <select id="statusFilter">
+    <option value="">すべて</option>
+    <option value="Open">Open</option>
+    <option value="In Progress">In Progress</option>
+    <option value="Review">Review</option>
+    <option value="Testing">Testing</option>
+    <option value="Done">Done</option>
+    <option value="Blocked">Blocked</option>
+  </select>
+
+  <label for="priorityFilter">Priority</label>
+  <select id="priorityFilter">
+    <option value="">すべて</option>
+    <option value="High">High</option>
+    <option value="Medium">Medium</option>
+    <option value="Low">Low</option>
+  </select>
+
+  <label for="assigneeFilter">Assignee</label>
+  <select id="assigneeFilter">
+    <option value="">すべて</option>
+    <option value="U001">Marina</option>
+  </select>
+</div>
+
+    <div id="ticketListMessage">
+      チケットを読み込んでいます...
+    </div>
+
+    <table id="ticketTable" border="1">
+      <thead>
+        <tr>
+          <th>Ticket ID</th>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Assignee</th>
+          <th>Due Date</th>
+        </tr>
+      </thead>
+
+      <tbody id="ticketTableBody">
+      </tbody>
+    </table>
+
     <h2>チケット作成</h2>
+
+
 
     <form id="ticketForm">
       <div>
