@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
+
 <html>
   <head>
     <base target="_top">
@@ -7,23 +8,180 @@
   <body>
     <h1>TicketFlow</h1>
 
-    <h2>チケット詳細</h2>
 
-    <div id="ticketDetail">
-      <p id="ticketId">チケット情報を読み込んでいます...</p>
-    </div>
+<h2>チケット詳細</h2>
 
-    <script>
-      const ticketId = '<?= ticketId ?>';
+<p>
+  <a href="#" onclick="goBackToList(); return false;">
+    ← チケット一覧に戻る
+  </a>
+</p>
 
-      if (ticketId) {
+<div id="ticketMessage">
+  チケット情報を読み込んでいます...
+</div>
+
+<div id="ticketDetail" style="display: none;">
+  <p>
+    <strong>Ticket ID:</strong>
+    <span id="ticketId"></span>
+  </p>
+
+  <p>
+    <strong>Title:</strong>
+    <span id="title"></span>
+  </p>
+
+  <p>
+    <strong>Description:</strong>
+    <span id="description"></span>
+  </p>
+
+  <p>
+    <strong>Type:</strong>
+    <span id="type"></span>
+  </p>
+
+  <p>
+    <strong>Priority:</strong>
+    <span id="priority"></span>
+  </p>
+
+  <p>
+    <strong>Status:</strong>
+    <span id="status"></span>
+  </p>
+
+  <p>
+    <strong>Assignee ID:</strong>
+    <span id="assigneeId"></span>
+  </p>
+
+  <p>
+    <strong>Reporter ID:</strong>
+    <span id="reporterId"></span>
+  </p>
+
+  <p>
+    <strong>Reviewer ID:</strong>
+    <span id="reviewerId"></span>
+  </p>
+
+  <p>
+    <strong>Acceptance Criteria:</strong>
+    <span id="acceptanceCriteria"></span>
+  </p>
+
+  <p>
+    <strong>Due Date:</strong>
+    <span id="dueDate"></span>
+  </p>
+
+  <p>
+    <strong>GitHub Issue:</strong>
+    <span id="githubIssue"></span>
+  </p>
+
+  <p>
+    <strong>GitHub PR:</strong>
+    <span id="githubPr"></span>
+  </p>
+
+  <p>
+    <strong>Created At:</strong>
+    <span id="createdAt"></span>
+  </p>
+
+  <p>
+    <strong>Updated At:</strong>
+    <span id="updatedAt"></span>
+  </p>
+</div>
+
+<script>
+  // 一覧画面へ戻る
+  function goBackToList() {
+    google.script.run
+      .withSuccessHandler(function(webAppUrl) {
+        window.top.location.href = webAppUrl;
+      })
+      .withFailureHandler(function(error) {
+        alert(`一覧画面への遷移に失敗しました: ${error.message}`);
+      })
+      .getWebAppUrl();
+  }
+
+  // URLからTicket IDを取得
+  const ticketId = '<?= ticketId ?>';
+
+  if (!ticketId) {
+    document.getElementById('ticketMessage').textContent =
+      'Ticket IDが指定されていません。';
+  } else {
+    google.script.run
+      .withSuccessHandler(function(ticket) {
+        if (!ticket) {
+          document.getElementById('ticketMessage').textContent =
+            '指定されたチケットが見つかりません。';
+          return;
+        }
+
+        document.getElementById('ticketMessage').style.display = 'none';
+        document.getElementById('ticketDetail').style.display = 'block';
+
         document.getElementById('ticketId').textContent =
-          `Ticket ID: ${ticketId}`;
-      } else {
-        document.getElementById('ticketId').textContent =
-          'Ticket IDが指定されていません。';
-      }
-    </script>
+          ticket['Ticket ID'] || '';
+
+        document.getElementById('title').textContent =
+          ticket['Title'] || '';
+
+        document.getElementById('description').textContent =
+          ticket['Description'] || '';
+
+        document.getElementById('type').textContent =
+          ticket['Type'] || '';
+
+        document.getElementById('priority').textContent =
+          ticket['Priority'] || '';
+
+        document.getElementById('status').textContent =
+          ticket['Status'] || '';
+
+        document.getElementById('assigneeId').textContent =
+          ticket['Assignee ID'] || '';
+
+        document.getElementById('reporterId').textContent =
+          ticket['Reporter ID'] || '';
+
+        document.getElementById('reviewerId').textContent =
+          ticket['Reviewer ID'] || '';
+
+        document.getElementById('acceptanceCriteria').textContent =
+          ticket['Acceptance Criteria'] || '';
+
+        document.getElementById('dueDate').textContent =
+          ticket['Due Date'] || '';
+
+        document.getElementById('githubIssue').textContent =
+          ticket['GitHub Issue'] || '';
+
+        document.getElementById('githubPr').textContent =
+          ticket['GitHub PR'] || '';
+
+        document.getElementById('createdAt').textContent =
+          ticket['Created At'] || '';
+
+        document.getElementById('updatedAt').textContent =
+          ticket['Updated At'] || '';
+      })
+      .withFailureHandler(function(error) {
+        document.getElementById('ticketMessage').textContent =
+          `チケット情報の取得に失敗しました: ${error.message}`;
+      })
+      .getTicketById(ticketId);
+  }
+</script>
+
 
   </body>
 </html>

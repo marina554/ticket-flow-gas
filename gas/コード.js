@@ -39,10 +39,10 @@ function createTicket(ticketData) {
   const ticketsSheet = spreadsheet.getSheetByName('Tickets');
   const historySheet = spreadsheet.getSheetByName('History');
 
-  // 必須項目のバリデーション
+  // 忁E��頁E��のバリチE�Eション
   if (!ticketData.title || !ticketData.description || !ticketData.type ||
       !ticketData.priority || !ticketData.acceptanceCriteria) {
-    throw new Error('必須項目を入力してください。');
+    throw new Error('忁E��頁E��を�E力してください、E);
   }
 
   // Type / Priority の許可値
@@ -50,40 +50,40 @@ function createTicket(ticketData) {
   const allowedPriorities = ['High', 'Medium', 'Low'];
 
   if (!allowedTypes.includes(ticketData.type)) {
-    throw new Error('Typeの値が不正です。');
+    throw new Error('Typeの値が不正です、E);
   }
 
   if (!allowedPriorities.includes(ticketData.priority)) {
-    throw new Error('Priorityの値が不正です。');
+    throw new Error('Priorityの値が不正です、E);
   }
 
-  // Due Date のバリデーション
+  // Due Date のバリチE�Eション
   let dueDate = '';
 
   if (ticketData.dueDate) {
     const parsedDate = new Date(ticketData.dueDate);
 
     if (isNaN(parsedDate.getTime())) {
-      throw new Error('Due Dateの値が不正です。');
+      throw new Error('Due Dateの値が不正です、E);
     }
 
     dueDate = parsedDate;
   }
 
-  // GitHub Issue番号のバリデーション
+  // GitHub Issue番号のバリチE�Eション
   let githubIssue = '';
 
   if (ticketData.githubIssue) {
     const issueNumber = Number(ticketData.githubIssue);
 
     if (!Number.isInteger(issueNumber) || issueNumber < 1) {
-      throw new Error('GitHub Issue番号は1以上の整数で入力してください。');
+      throw new Error('GitHub Issue番号は1以上�E整数で入力してください、E);
     }
 
     githubIssue = issueNumber;
   }
 
-  // Ticket IDを自動採番
+  // Ticket IDを�E動採番
   const lastRow = ticketsSheet.getLastRow();
   const ticketId = `T${String(lastRow).padStart(3, '0')}`;
 
@@ -93,8 +93,7 @@ function createTicket(ticketData) {
   // Reporter ID
   const reporterId = 'U001';
 
-  // Ticketsシートへ保存
-  ticketsSheet.appendRow([
+  // Ticketsシートへ保孁E  ticketsSheet.appendRow([
     ticketId,
     ticketData.title,
     ticketData.description,
@@ -112,8 +111,7 @@ function createTicket(ticketData) {
     now
   ]);
 
-  // Historyシートへ作成履歴を保存
-  const historyLastRow = historySheet.getLastRow();
+  // Historyシートへ作�E履歴を保孁E  const historyLastRow = historySheet.getLastRow();
   const historyId = `H${String(historyLastRow).padStart(3, '0')}`;
 
   historySheet.appendRow([
@@ -146,7 +144,7 @@ function getTickets() {
 
   const values = ticketsSheet.getDataRange().getValues();
 
-  // ヘッダー行だけの場合は空配列を返す
+  // ヘッダー行だけ�E場合�E空配�Eを返す
   if (values.length <= 1) {
     return [];
   }
@@ -159,7 +157,7 @@ function getTickets() {
     headers.forEach((header, index) => {
       let value = row[index];
 
-      // Date型は文字列に変換してブラウザへ返す
+      // Date型�E斁E���Eに変換してブラウザへ返す
       if (value instanceof Date) {
         value = Utilities.formatDate(
           value,
@@ -178,4 +176,51 @@ function getTickets() {
 function testGetTickets() {
   const tickets = getTickets();
   console.log(tickets);
+}
+
+function testDetailTemplate() {
+  const html = HtmlService
+    .createHtmlOutputFromFile('detail')
+    .getContent();
+
+  console.log(html);
+}
+
+function getTicketById(ticketId) {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ticketsSheet = spreadsheet.getSheetByName('Tickets');
+
+  const values = ticketsSheet.getDataRange().getValues();
+
+  if (values.length <= 1) {
+    return null;
+  }
+
+  const headers = values[0];
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+
+    if (row[0] === ticketId) {
+      const ticket = {};
+
+      headers.forEach((header, index) => {
+        let value = row[index];
+
+        if (value instanceof Date) {
+          value = Utilities.formatDate(
+            value,
+            Session.getScriptTimeZone(),
+            'yyyy-MM-dd HH:mm:ss'
+          );
+        }
+
+        ticket[header] = value;
+      });
+
+      return ticket;
+    }
+  }
+
+  return null;
 }
