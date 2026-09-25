@@ -1,0 +1,246 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+
+  <body>
+    <h1>TicketFlow</h1>
+
+    <h2>チケット編集</h2>
+
+    <p>
+      <a href="#" onclick="goBackToDetail(); return false;">
+        ← チケット詳細に戻る
+      </a>
+    </p>
+
+    <div id="editMessage">
+      チケット情報を読み込んでいます...
+    </div>
+
+    <form id="editForm" style="display: none;">
+
+      <p>
+        <strong>Ticket ID:</strong>
+        <span id="ticketId"></span>
+      </p>
+
+      <p>
+        <label>
+          Title:
+          <input type="text" id="title">
+        </label>
+      </p>
+
+      <p>
+        <label>
+          Description:
+          <textarea id="description"></textarea>
+        </label>
+      </p>
+
+      <p>
+        <label>
+          Type:
+          <select id="type">
+            <option value="Feature">Feature</option>
+            <option value="Bug">Bug</option>
+            <option value="Task">Task</option>
+          </select>
+        </label>
+      </p>
+
+      <p>
+        <label>
+          Priority:
+          <select id="priority">
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </label>
+      </p>
+
+      <p>
+        <strong>Status:</strong>
+        <span id="status"></span>
+      </p>
+
+      <p>
+        <label>
+          Assignee ID:
+          <input type="text" id="assigneeId">
+        </label>
+      </p>
+
+      <p>
+        <strong>Reporter ID:</strong>
+        <span id="reporterId"></span>
+      </p>
+
+      <p>
+        <label>
+          Reviewer ID:
+          <input type="text" id="reviewerId">
+        </label>
+      </p>
+
+      <p>
+        <label>
+          Acceptance Criteria:
+          <textarea id="acceptanceCriteria"></textarea>
+        </label>
+      </p>
+
+      <p>
+        <label>
+          Due Date:
+          <input type="date" id="dueDate">
+        </label>
+      </p>
+
+      <p>
+        <label>
+          GitHub Issue:
+          <input type="number" id="githubIssue" min="1">
+        </label>
+      </p>
+
+      <p>
+        <label>
+          GitHub PR:
+          <input type="number" id="githubPr" min="1">
+        </label>
+      </p>
+
+      <p>
+        <button type="submit">保存</button>
+      </p>
+
+    </form>
+
+    <script>
+      const ticketId = '<?= ticketId ?>';
+
+      function goBackToDetail() {
+        google.script.run
+          .withSuccessHandler(function(webAppUrl) {
+            const detailUrl =
+              `${webAppUrl}?page=detail&ticketId=${encodeURIComponent(ticketId)}`;
+
+            window.top.location.href = detailUrl;
+          })
+          .withFailureHandler(function(error) {
+            alert(`チケット詳細への遷移に失敗しました: ${error.message}`);
+          })
+          .getWebAppUrl();
+      }
+
+      if (!ticketId) {
+        document.getElementById('editMessage').textContent =
+          'Ticket IDが指定されていません。';
+      } else {
+        google.script.run
+          .withSuccessHandler(function(ticket) {
+            if (!ticket) {
+              document.getElementById('editMessage').textContent =
+                '指定されたチケットが見つかりません。';
+              return;
+            }
+
+            document.getElementById('editMessage').style.display = 'none';
+            document.getElementById('editForm').style.display = 'block';
+
+            document.getElementById('ticketId').textContent =
+              ticket['Ticket ID'] || '';
+
+            document.getElementById('title').value =
+              ticket['Title'] || '';
+
+            document.getElementById('description').value =
+              ticket['Description'] || '';
+
+            document.getElementById('type').value =
+              ticket['Type'] || 'Feature';
+
+            document.getElementById('priority').value =
+              ticket['Priority'] || 'Medium';
+
+            document.getElementById('status').textContent =
+              ticket['Status'] || '';
+
+            document.getElementById('assigneeId').value =
+              ticket['Assignee ID'] || '';
+
+            document.getElementById('reporterId').textContent =
+              ticket['Reporter ID'] || '';
+
+            document.getElementById('reviewerId').value =
+              ticket['Reviewer ID'] || '';
+
+            document.getElementById('acceptanceCriteria').value =
+              ticket['Acceptance Criteria'] || '';
+
+            if (ticket['Due Date']) {
+              document.getElementById('dueDate').value =
+                String(ticket['Due Date']).substring(0, 10);
+            }
+
+            document.getElementById('githubIssue').value =
+              ticket['GitHub Issue'] || '';
+
+            document.getElementById('githubPr').value =
+              ticket['GitHub PR'] || '';
+          })
+          .withFailureHandler(function(error) {
+            document.getElementById('editMessage').textContent =
+              `チケット情報の取得に失敗しました: ${error.message}`;
+          })
+          .getTicketById(ticketId);
+      }
+
+         document.getElementById('editForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const ticketData = {
+          ticketId: ticketId,
+          title: document.getElementById('title').value,
+          description: document.getElementById('description').value,
+          type: document.getElementById('type').value,
+          priority: document.getElementById('priority').value,
+          assigneeId: document.getElementById('assigneeId').value,
+          reviewerId: document.getElementById('reviewerId').value,
+          acceptanceCriteria: document.getElementById('acceptanceCriteria').value,
+          dueDate: document.getElementById('dueDate').value,
+          githubIssue: document.getElementById('githubIssue').value,
+          githubPr: document.getElementById('githubPr').value
+        };
+
+        document.getElementById('editMessage').style.display = 'block';
+        document.getElementById('editMessage').textContent =
+          '保存しています...';
+
+        google.script.run
+          .withSuccessHandler(function(result) {
+            const webAppUrl = '<?= ScriptApp.getService().getUrl() ?>';
+
+            const detailUrl =
+              webAppUrl +
+              '?page=detail&ticketId=' +
+              encodeURIComponent(result.ticketId);
+
+            window.top.location.href = detailUrl;
+          })
+          .withFailureHandler(function(error) {
+            document.getElementById('editMessage').style.display = 'block';
+            document.getElementById('editMessage').textContent =
+              '保存に失敗しました: ' + error.message;
+          })
+          .updateTicket(ticketData);
+      });
+
+    </script>
+
+  </body>
+</html>

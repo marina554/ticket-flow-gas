@@ -17,6 +17,12 @@
   </a>
 </p>
 
+<p>
+  <a href="#" onclick="goToEdit(); return false;">
+    チケットを編集
+  </a>
+</p>
+
 <div id="ticketMessage">
   チケット情報を読み込んでいます...
 </div>
@@ -107,6 +113,21 @@
       })
       .withFailureHandler(function(error) {
         alert(`一覧画面への遷移に失敗しました: ${error.message}`);
+      })
+      .getWebAppUrl();
+  }
+
+    // 編集画面へ移動
+  function goToEdit() {
+    google.script.run
+      .withSuccessHandler(function(webAppUrl) {
+        const editUrl =
+          `${webAppUrl}?page=edit&ticketId=${encodeURIComponent(ticketId)}`;
+
+        window.top.location.href = editUrl;
+      })
+      .withFailureHandler(function(error) {
+        alert(`編集画面への遷移に失敗しました: ${error.message}`);
       })
       .getWebAppUrl();
   }
