@@ -511,3 +511,91 @@ function testUpdateTicketNotFound() {
     console.log('SUCCESS: ' + error.message);
   }
 }
+
+function updateTicketStatus(ticketId, newStatus) {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ticketsSheet = spreadsheet.getSheetByName('Tickets');
+  const historySheet = spreadsheet.getSheetByName('History');
+
+  const allowedStatuses = [
+    'Open',
+    'In Progress',
+    'Review',
+    'Testing',
+    'Done',
+    'Blocked'
+  ];
+
+  if (!allowedStatuses.includes(newStatus)) {
+    throw new Error('Statusの値が不正です。');
+  }
+
+  const values = ticketsSheet.getDataRange().getValues();
+
+  if (values.length <= 1) {
+    throw new Error('指定されたチケットが見つかりません。');
+  }
+
+  let targetRow = -1;
+  let oldStatus = '';
+
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][0] === ticketId) {
+      targetRow = i + 1;
+      oldStatus = values[i][5];
+      break;
+    }
+  }
+
+  if (targetRow === -1) {
+    throw new Error('指定されたチケットが見つかりません。');
+  }
+
+  if (String(oldStatus) === String(newStatus)) {
+    return {
+      ticketId: ticketId
+    };
+  }
+
+  const actorId = 'U001';
+  const now = new Date();
+
+  ticketsSheet.getRange(targetRow, 6).setValue(newStatus);
+  ticketsSheet.getRange(targetRow, 15).setValue(now);
+
+  const historyLastRow = historySheet.getLastRow();
+  const historyId =
+    'H' + String(historyLastRow).padStart(3, '0');
+
+  historySheet.appendRow([
+    historyId,
+    ticketId,
+    'Updated',
+    'Status',
+    oldStatus,
+    newStatus,
+    actorId,
+    now
+  ]);
+
+  return {
+    ticketId: ticketId
+  };
+}
+
+function testUpdateTicketStatus() {
+  const result = updateTicketStatus(
+    'T001',
+    'In Progress'
+  );
+
+  console.log(result);
+}
+
+function testUpdateTicketStatusInvalidStatus() {
+  updateTicketStatus('T002', 'InvalidStatus');
+}
+
+function testUpdateTicketStatusNotFound() {
+  updateTicketStatus('T999', 'Done');
+}
