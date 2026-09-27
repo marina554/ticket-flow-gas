@@ -229,6 +229,44 @@ function getTicketById(ticketId) {
   return null;
 }
 
+function getCommentsByTicketId(ticketId) {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const commentsSheet = spreadsheet.getSheetByName('Comments');
+
+  const values = commentsSheet.getDataRange().getValues();
+
+  if (values.length <= 1) {
+    return [];
+  }
+
+  const headers = values[0];
+
+  return values
+    .slice(1)
+    .filter(function(row) {
+      return row[1] === ticketId;
+    })
+    .map(function(row) {
+      const comment = {};
+
+      headers.forEach(function(header, index) {
+        let value = row[index];
+
+        if (value instanceof Date) {
+          value = Utilities.formatDate(
+            value,
+            Session.getScriptTimeZone(),
+            'yyyy-MM-dd HH:mm:ss'
+          );
+        }
+
+        comment[header] = value;
+      });
+
+      return comment;
+    });
+}
+
 function updateTicket(ticketData) {
   const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
   const ticketsSheet = spreadsheet.getSheetByName('Tickets');
@@ -598,4 +636,105 @@ function testUpdateTicketStatusInvalidStatus() {
 
 function testUpdateTicketStatusNotFound() {
   updateTicketStatus('T999', 'Done');
+}
+
+function testGetCommentsByTicketId() {
+  const result = getCommentsByTicketId('T001');
+
+  console.log(result);
+}
+
+function addComment(ticketId, commentText) {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ticketsSheet = spreadsheet.getSheetByName('Tickets');
+  const commentsSheet = spreadsheet.getSheetByName('Comments');
+  const historySheet = spreadsheet.getSheetByName('History');
+
+  if (!commentText || !String(commentText).trim()) {
+    throw new Error('コメントを入力してください。');
+  }
+
+  const ticketValues = ticketsSheet.getDataRange().getValues();
+
+  if (ticketValues.length <= 1) {
+    throw new Error('指定されたチケットが見つかりません。');
+  }
+
+  let ticketExists = false;
+
+  for (let i = 1; i < ticketValues.length; i++) {
+    if (ticketValues[i][0] === ticketId) {
+      ticketExists = true;
+      break;
+    }
+  }
+
+  if (!ticketExists) {
+    throw new Error('指定されたチケットが見つかりません。');
+  }
+
+  const commentValues = commentsSheet.getDataRange().getValues();
+  const commentLastRow = commentsSheet.getLastRow();
+
+  const commentId =
+    'C' + String(commentLastRow).padStart(3, '0');
+
+  const authorId = 'U001';
+  const now = new Date();
+  const trimmedComment = String(commentText).trim();
+
+  commentsSheet.appendRow([
+    commentId,
+    ticketId,
+    authorId,
+    trimmedComment,
+    now
+  ]);
+
+  const historyLastRow = historySheet.getLastRow();
+  const historyId =
+    'H' + String(historyLastRow).padStart(3, '0');
+
+  historySheet.appendRow([
+    historyId,
+    ticketId,
+    'Updated',
+    'Comment',
+    '',
+    trimmedComment,
+    authorId,
+    now
+  ]);
+
+  return {
+    commentId: commentId,
+    ticketId: ticketId
+  };
+}
+
+function testAddComment() {
+  const result = addComment(
+    'T001',
+    'Issue #10のコメント機能をテストしています。'
+  );
+
+  console.log(result);
+}
+
+function testAddCommentEmpty() {
+  try {
+    addComment('T001', '');
+    console.log('ERROR: 空コメントが許可されました。');
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+function testAddCommentNotFound() {
+  try {
+    addComment('T999', '存在しないチケットへのコメント');
+    console.log('ERROR: 存在しないTicket IDが許可されました。');
+  } catch (error) {
+    console.log(error.message);
+  }
 }

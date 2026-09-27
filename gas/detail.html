@@ -122,6 +122,34 @@
   </p>
 </div>
 
+<!-- コメント -->
+<div id="commentSection">
+  <h3>コメント</h3>
+
+  <div id="commentMessage">
+    コメントを読み込んでいます...
+  </div>
+
+  <div id="commentList"></div>
+
+  <h4>コメントを追加</h4>
+
+  <textarea
+    id="commentText"
+    rows="4"
+    cols="50"
+    placeholder="コメントを入力してください"
+  ></textarea>
+
+  <br>
+
+  <button type="button" onclick="addNewComment()">
+    コメントを追加
+  </button>
+
+  <p id="addCommentMessage"></p>
+</div>
+
 <script>
   // 一覧画面へ戻る
   function goBackToList() {
@@ -148,6 +176,76 @@
         alert(`編集画面への遷移に失敗しました: ${error.message}`);
       })
       .getWebAppUrl();
+  }
+
+  // コメント一覧を取得
+  function loadComments() {
+    document.getElementById('commentMessage').textContent =
+      'コメントを読み込んでいます...';
+
+    google.script.run
+      .withSuccessHandler(function(comments) {
+        const commentList =
+          document.getElementById('commentList');
+
+        commentList.innerHTML = '';
+
+        if (comments.length === 0) {
+          document.getElementById('commentMessage').textContent =
+            'コメントはありません。';
+
+          return;
+        }
+
+        document.getElementById('commentMessage').textContent = '';
+
+        comments.forEach(function(comment) {
+          const commentElement =
+            document.createElement('div');
+
+          commentElement.innerHTML = `
+            <p>
+              <strong>${comment['Author ID'] || ''}</strong>
+              <span>
+                (${comment['Created At'] || ''})
+              </span>
+            </p>
+            <p>${comment['Comment'] || ''}</p>
+            <hr>
+          `;
+
+          commentList.appendChild(commentElement);
+        });
+      })
+      .withFailureHandler(function(error) {
+        document.getElementById('commentMessage').textContent =
+          `コメントの取得に失敗しました: ${error.message}`;
+      })
+      .getCommentsByTicketId(ticketId);
+  }
+
+  // コメントを追加
+  function addNewComment() {
+    const commentText =
+      document.getElementById('commentText').value;
+
+    document.getElementById('addCommentMessage').textContent =
+      'コメントを追加しています...';
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        document.getElementById('commentText').value = '';
+
+        document.getElementById('addCommentMessage').textContent =
+          'コメントを追加しました。';
+
+        loadComments();
+      })
+      .withFailureHandler(function(error) {
+        document.getElementById('addCommentMessage').textContent =
+          `コメントの追加に失敗しました: ${error.message}`;
+      })
+      .addComment(ticketId, commentText);
   }
 
   // Statusを変更する
@@ -238,6 +336,8 @@ function changeTicketStatus() {
 
         document.getElementById('updatedAt').textContent =
           ticket['Updated At'] || '';
+
+        loadComments();
       })
       .withFailureHandler(function(error) {
         document.getElementById('ticketMessage').textContent =
