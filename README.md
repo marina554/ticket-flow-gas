@@ -303,3 +303,72 @@ Issue、Commit、Pull Request、テスト結果などを可能な範囲で関連
 * Google Spreadsheetにデータを保存できる
 * GitHub Issueとチケットを関連付けられる
 * 基本的なテストを実施できる
+
+## 10.開発実績
+
+TicketFlowでは、GitHub Issueを単位として機能を分割し、
+「Issue作成 → 実装 → テスト → Git diff確認 → Commit → Push → Issue Close」の流れで開発を進めています。
+
+| Issue      | 実装した機能・成果物                        | 開発経験・アピールポイント                                                      |
+| ---------- | --------------------------------- | ------------------------------------------------------------------ |
+| #1 要件定義    | `requirements.md` を作成             | システムの目的・対象ユーザー・機能範囲・MVP・非機能要件などを整理                                 |
+| #2 DB設計    | `db-design.md` を作成                | Tickets / Comments / History / Membersのデータ構造、ID・リレーションを設計          |
+| #3 画面設計    | `screen-design.md` を作成            | 一覧・詳細・作成・編集画面の構成、画面遷移、入力項目、バリデーションを設計                              |
+| #4 GAS初期構成 | GAS・Spreadsheet・clasp・GitHub連携を構築 | Google Apps Script、Google Spreadsheet、Node.js、clasp、Gitを使った開発環境を構築 |
+| #5 チケット作成  | チケット登録機能                          | 入力値検証、ID自動採番、日時記録、Historyへの作成履歴記録を実装                               |
+| #6 チケット一覧  | 一覧表示・Status/Priority/Assigneeフィルタ | Spreadsheetからデータを取得し、条件に応じて一覧を絞り込む処理を実装                            |
+| #7 チケット詳細  | チケット詳細表示                          | URLパラメータからTicket IDを取得し、対象データを表示。存在しないIDへのエラー処理も実装                 |
+| #8 チケット編集  | チケット編集・変更履歴                       | 更新前後の値を比較し、変更された項目だけHistoryへ記録する処理を実装                              |
+| #9 ステータス変更 | Status変更機能                        | Statusの値を検証し、変更日時・変更前後の値をHistoryへ記録                                |
+| #10 コメント   | コメント追加・一覧表示                       | Commentsシートへの登録、Comment ID自動採番、Ticket IDとの紐付け、入力チェックを実装            |
+| #11 履歴表示   | 変更履歴一覧表示                          | Ticket IDごとの履歴取得、History ID・変更内容・操作者・日時の表示、履歴更新を実装                 |
+
+### 開発プロセス
+
+各Issueについて、以下の流れを基本ルールとして開発しています。
+
+```text
+GitHub Issue作成
+       ↓
+要件・設計確認
+       ↓
+実装
+       ↓
+動作テスト
+       ↓
+Git diff確認
+       ↓
+Commit
+       ↓
+Push
+       ↓
+Issue Close
+```
+
+また、開発ルールとして **「No Ticket, No Work」** を設定し、Issueを作成してから実装を開始することを徹底しています。
+
+### 現在実装されている主な機能
+
+* チケット作成
+* チケット一覧表示
+* Status / Priority / Assigneeによるフィルタ
+* チケット詳細表示
+* チケット編集
+* ステータス変更
+* コメント追加・表示
+* 変更履歴表示
+* 入力値バリデーション
+* 操作履歴の記録
+
+### 使用技術
+
+* Google Apps Script
+* Google Spreadsheet
+* HTML
+* CSS
+* JavaScript
+* Git
+* GitHub
+* clasp
+* Node.js
+
