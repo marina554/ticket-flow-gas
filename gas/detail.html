@@ -150,6 +150,17 @@
   <p id="addCommentMessage"></p>
 </div>
 
+<!-- 履歴 -->
+<div id="historySection">
+  <h3>履歴</h3>
+
+  <div id="historyMessage">
+    履歴を読み込んでいます...
+  </div>
+
+  <div id="historyList"></div>
+</div>
+
 <script>
   // 一覧画面へ戻る
   function goBackToList() {
@@ -224,6 +235,65 @@
       .getCommentsByTicketId(ticketId);
   }
 
+function loadHistory() {
+  document.getElementById('historyMessage').textContent =
+    '履歴を読み込んでいます...';
+
+  google.script.run
+    .withSuccessHandler(function(histories) {
+      const historyList =
+        document.getElementById('historyList');
+
+      historyList.innerHTML = '';
+
+      if (histories.length === 0) {
+        document.getElementById('historyMessage').textContent =
+          '履歴はありません。';
+
+        return;
+      }
+
+      document.getElementById('historyMessage').textContent = '';
+
+      histories.forEach(function(history) {
+        const historyElement =
+          document.createElement('div');
+
+        historyElement.innerHTML = `
+          <p>
+            <strong>${history['History ID'] || ''}</strong>
+            <span>
+              ${history['Created At'] || ''}
+            </span>
+          </p>
+          <p>
+            Action: ${history['Action'] || ''}
+          </p>
+          <p>
+            Field: ${history['Field'] || ''}
+          </p>
+          <p>
+            Old Value: ${history['Old Value'] || ''}
+          </p>
+          <p>
+            New Value: ${history['New Value'] || ''}
+          </p>
+          <p>
+            Actor ID: ${history['Actor ID'] || ''}
+          </p>
+          <hr>
+        `;
+
+        historyList.appendChild(historyElement);
+      });
+    })
+    .withFailureHandler(function(error) {
+      document.getElementById('historyMessage').textContent =
+        `履歴の取得に失敗しました: ${error.message}`;
+    })
+    .getHistoryByTicketId(ticketId);
+}
+
   // コメントを追加
   function addNewComment() {
     const commentText =
@@ -240,6 +310,7 @@
           'コメントを追加しました。';
 
         loadComments();
+        loadHistory();
       })
       .withFailureHandler(function(error) {
         document.getElementById('addCommentMessage').textContent =
@@ -338,6 +409,7 @@ function changeTicketStatus() {
           ticket['Updated At'] || '';
 
         loadComments();
+        loadHistory();
       })
       .withFailureHandler(function(error) {
         document.getElementById('ticketMessage').textContent =

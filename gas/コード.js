@@ -738,3 +738,47 @@ function testAddCommentNotFound() {
     console.log(error.message);
   }
 }
+
+function getHistoryByTicketId(ticketId) {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const historySheet = spreadsheet.getSheetByName('History');
+
+  const values = historySheet.getDataRange().getValues();
+
+  if (values.length <= 1) {
+    return [];
+  }
+
+  const headers = values[0];
+
+  return values
+    .slice(1)
+    .filter(function(row) {
+      return row[1] === ticketId;
+    })
+    .map(function(row) {
+      const history = {};
+
+      headers.forEach(function(header, index) {
+        let value = row[index];
+
+        if (value instanceof Date) {
+          value = Utilities.formatDate(
+            value,
+            Session.getScriptTimeZone(),
+            'yyyy-MM-dd HH:mm:ss'
+          );
+        }
+
+        history[header] = value;
+      });
+
+      return history;
+    });
+}
+
+function testGetHistoryByTicketId() {
+  const result = getHistoryByTicketId('T001');
+
+  console.log(result);
+}
