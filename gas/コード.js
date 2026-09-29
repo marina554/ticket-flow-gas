@@ -63,6 +63,14 @@ function createTicket(ticketData) {
     throw new Error('Priorityの値が不正です。');
   }
 
+  if (!isValidMemberId(ticketData.assigneeId)) {
+    throw new Error('担当者のMember IDが不正です。');
+  }
+
+  if (!isValidMemberId(ticketData.reviewerId)) {
+    throw new Error('レビュアーのMember IDが不正です。');
+  }
+
   let dueDate = '';
 
   if (ticketData.dueDate) {
@@ -293,6 +301,15 @@ function updateTicket(ticketData) {
 
   if (!allowedPriorities.includes(ticketData.priority)) {
     throw new Error('Priorityの値が不正です。');
+  }
+
+  // Member ID のバリデーション
+  if (!isValidMemberId(ticketData.assigneeId)) {
+    throw new Error('担当者のMember IDが不正です。');
+  }
+
+  if (!isValidMemberId(ticketData.reviewerId)) {
+    throw new Error('レビュアーのMember IDが不正です。');
   }
 
   // Due Date のバリデーション
@@ -781,4 +798,146 @@ function testGetHistoryByTicketId() {
   const result = getHistoryByTicketId('T001');
 
   console.log(result);
+}
+
+function getMembers() {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const membersSheet = spreadsheet.getSheetByName('Members');
+
+  const values = membersSheet.getDataRange().getValues();
+
+  if (values.length <= 1) {
+    return [];
+  }
+
+  const headers = values[0];
+
+  return values.slice(1).map(function(row) {
+    const member = {};
+
+    headers.forEach(function(header, index) {
+      let value = row[index];
+
+      if (value instanceof Date) {
+        value = Utilities.formatDate(
+          value,
+          Session.getScriptTimeZone(),
+          'yyyy-MM-dd HH:mm:ss'
+        );
+      }
+
+      member[header] = value;
+    });
+
+    return member;
+  });
+}
+
+function testGetMembers() {
+  const result = getMembers();
+
+  console.log(result);
+}
+
+function isValidMemberId(memberId) {
+  if (!memberId) {
+    return true;
+  }
+
+  const members = getMembers();
+
+  return members.some(function(member) {
+    return member['Member ID'] === memberId;
+  });
+}
+
+function testIsValidMemberId() {
+  console.log('空欄: ' + isValidMemberId(''));
+  console.log('U001: ' + isValidMemberId('U001'));
+  console.log('U002: ' + isValidMemberId('U002'));
+  console.log('U999: ' + isValidMemberId('U999'));
+}
+
+function testCreateTicketInvalidMemberId() {
+  try {
+    createTicket({
+      title: 'Invalid Member Test',
+      description: '存在しないMember IDのテストです。',
+      type: 'Task',
+      priority: 'Low',
+      assigneeId: 'U999',
+      reviewerId: 'U001',
+      acceptanceCriteria: 'U999が拒否されること。',
+      dueDate: '',
+      githubIssue: ''
+    });
+
+    console.log('ERROR: 存在しないAssignee IDが受け付けられました。');
+  } catch (error) {
+    console.log('SUCCESS: ' + error.message);
+  }
+}
+
+function testCreateTicketInvalidReviewerId() {
+  try {
+    createTicket({
+      title: 'Invalid Reviewer Test',
+      description: '存在しないReviewer IDのテストです。',
+      type: 'Task',
+      priority: 'Low',
+      assigneeId: 'U001',
+      reviewerId: 'U999',
+      acceptanceCriteria: 'U999が拒否されること。',
+      dueDate: '',
+      githubIssue: ''
+    });
+
+    console.log('ERROR: 存在しないReviewer IDが受け付けられました。');
+  } catch (error) {
+    console.log('SUCCESS: ' + error.message);
+  }
+}
+
+function testUpdateTicketInvalidAssigneeId() {
+  try {
+    updateTicket({
+      ticketId: 'T001',
+      title: 'Invalid Assignee Test',
+      description: '存在しないAssignee IDのテストです。',
+      type: 'Task',
+      priority: 'Low',
+      assigneeId: 'U999',
+      reviewerId: 'U001',
+      acceptanceCriteria: 'U999が拒否されること。',
+      dueDate: '',
+      githubIssue: '',
+      githubPr: ''
+    });
+
+    console.log('ERROR: 存在しないAssignee IDが受け付けられました。');
+  } catch (error) {
+    console.log('SUCCESS: ' + error.message);
+  }
+}
+
+function testUpdateTicketInvalidReviewerId() {
+  try {
+    updateTicket({
+      ticketId: 'T001',
+      title: 'Invalid Reviewer Test',
+      description: '存在しないReviewer IDのテストです。',
+      type: 'Task',
+      priority: 'Low',
+      assigneeId: 'U001',
+      reviewerId: 'U999',
+      acceptanceCriteria: 'U999が拒否されること。',
+      dueDate: '',
+      githubIssue: '',
+      githubPr: ''
+    });
+
+    console.log('ERROR: 存在しないReviewer IDが受け付けられました。');
+  } catch (error) {
+    console.log('SUCCESS: ' + error.message);
+  }
 }

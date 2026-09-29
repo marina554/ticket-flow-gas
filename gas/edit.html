@@ -69,8 +69,10 @@
 
       <p>
         <label>
-          Assignee ID:
-          <input type="text" id="assigneeId">
+          Assignee:
+          <select id="assigneeId">
+            <option value="">未設定</option>
+          </select>
         </label>
       </p>
 
@@ -81,8 +83,10 @@
 
       <p>
         <label>
-          Reviewer ID:
-          <input type="text" id="reviewerId">
+          Reviewer:
+          <select id="reviewerId">
+            <option value="">未設定</option>
+          </select>
         </label>
       </p>
 
@@ -137,6 +141,52 @@
           .getWebAppUrl();
       }
 
+      function loadMembers(currentAssigneeId, currentReviewerId) {
+  google.script.run
+    .withSuccessHandler(function(members) {
+
+      const assigneeSelect =
+        document.getElementById('assigneeId');
+
+      const reviewerSelect =
+        document.getElementById('reviewerId');
+
+      members.forEach(function(member) {
+        const memberId = member['Member ID'];
+        const memberName = member['Name'];
+
+        const assigneeOption =
+          document.createElement('option');
+
+        assigneeOption.value = memberId;
+        assigneeOption.textContent =
+          `${memberId} - ${memberName}`;
+
+        assigneeSelect.appendChild(assigneeOption);
+
+        const reviewerOption =
+          document.createElement('option');
+
+        reviewerOption.value = memberId;
+        reviewerOption.textContent =
+          `${memberId} - ${memberName}`;
+
+        reviewerSelect.appendChild(reviewerOption);
+      });
+
+      assigneeSelect.value =
+        currentAssigneeId || '';
+
+      reviewerSelect.value =
+        currentReviewerId || '';
+    })
+    .withFailureHandler(function(error) {
+      document.getElementById('editMessage').textContent =
+        `メンバーの取得に失敗しました: ${error.message}`;
+    })
+    .getMembers();
+}
+
       if (!ticketId) {
         document.getElementById('editMessage').textContent =
           'Ticket IDが指定されていません。';
@@ -170,14 +220,13 @@
             document.getElementById('status').textContent =
               ticket['Status'] || '';
 
-            document.getElementById('assigneeId').value =
-              ticket['Assignee ID'] || '';
+            loadMembers(
+              ticket['Assignee ID'] || '',
+              ticket['Reviewer ID'] || ''
+            );
 
             document.getElementById('reporterId').textContent =
               ticket['Reporter ID'] || '';
-
-            document.getElementById('reviewerId').value =
-              ticket['Reviewer ID'] || '';
 
             document.getElementById('acceptanceCriteria').value =
               ticket['Acceptance Criteria'] || '';

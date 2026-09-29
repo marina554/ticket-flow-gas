@@ -177,7 +177,58 @@
   // ========================================
   // ページ読み込み時にチケット一覧を取得
   // ========================================
+function loadMembers() {
+  google.script.run
+    .withSuccessHandler(function(members) {
+      const assigneeSelect =
+        document.getElementById('assigneeId');
 
+      const reviewerSelect =
+        document.getElementById('reviewerId');
+
+      const assigneeFilter =
+        document.getElementById('assigneeFilter');
+
+      members.forEach(function(member) {
+        const memberId = member['Member ID'];
+        const memberName = member['Name'];
+
+        const assigneeOption =
+          document.createElement('option');
+
+        assigneeOption.value = memberId;
+        assigneeOption.textContent =
+          `${memberId} - ${memberName}`;
+
+        assigneeSelect.appendChild(assigneeOption);
+
+        const reviewerOption =
+          document.createElement('option');
+
+        reviewerOption.value = memberId;
+        reviewerOption.textContent =
+          `${memberId} - ${memberName}`;
+
+        reviewerSelect.appendChild(reviewerOption);
+
+        const filterOption =
+          document.createElement('option');
+
+        filterOption.value = memberId;
+        filterOption.textContent =
+          `${memberId} - ${memberName}`;
+
+        assigneeFilter.appendChild(filterOption);
+      });
+    })
+    .withFailureHandler(function(error) {
+      document.getElementById('message').textContent =
+        `メンバーの取得に失敗しました: ${error.message}`;
+    })
+    .getMembers();
+}
+
+  loadMembers();
   loadTickets();
 
 </script>
