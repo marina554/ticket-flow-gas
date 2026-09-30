@@ -1,95 +1,97 @@
-# TicketFlow 要件定義書
+[日本語版はこちら](README_ja.md)
 
-## 1. プロジェクト概要
+# TicketFlow
 
-### 1.1 システム名
+## 1. Project Overview
+
+### 1.1 Project Name
 
 TicketFlow
 
-### 1.2 概要
+### 1.2 Overview
 
-TicketFlowは、Google Apps Script（GAS）を使用して開発する、小規模なソフトウェア開発チーム向けのチケット管理Webアプリケーションである。
+TicketFlow is a ticket management web application for small software development teams, built with Google Apps Script (GAS).
 
-チケットを起点として、タスクの登録、担当、進捗、コメント、変更履歴などを管理する。
+The application manages tasks through tickets, including task registration, assignment, progress, comments, and change history.
 
-また、本システム自体の開発についてもチケット駆動で進めることで、チケット駆動開発の実践と開発プロセスの可視化を目的とする。
-
----
-
-## 2. 開発目的
-
-本プロジェクトでは、以下を目的とする。
-
-1. チケット単位でタスクや課題を管理できるシステムを開発する。
-2. チケットを起点として、実装・テスト・完了までの開発プロセスを管理する。
-3. GitHubのIssue、Pull Request、Gitの変更履歴とチケットを関連付ける。
-4. チケットの変更履歴を記録し、作業の経緯を追跡可能にする。
-5. 自身の開発プロセスそのものをチケット駆動で管理し、実践経験として記録する。
+The development of TicketFlow itself is also managed using a ticket-driven development process. This project aims to demonstrate practical experience with ticket-driven development and make the development process traceable and visible.
 
 ---
 
-## 3. 想定ユーザー
+## 2. Development Objectives
 
-### 3.1 対象
+The objectives of this project are:
 
-小規模なソフトウェア開発チームのメンバーを対象とする。
-
-### 3.2 利用者
-
-MVPでは、利用者の権限を細かく分けず、開発チームのメンバーが共通して利用するものとする。
-
-チケット上では、以下の役割を記録できる。
-
-* 担当者
-* 作成者
-* レビュー担当者
+1. Build a system for managing tasks and issues on a ticket-by-ticket basis.
+2. Manage the development process from implementation and testing through completion using tickets.
+3. Associate tickets with GitHub Issues, Pull Requests, and Git history.
+4. Record ticket change history so that the development process can be traced.
+5. Practice ticket-driven development by managing the development of this system itself through tickets.
 
 ---
 
-## 4. 機能要件
+## 3. Target Users
 
-### 4.1 チケット管理
+### 3.1 Target
 
-以下の操作を提供する。
+Members of small software development teams.
 
-* チケットの作成
-* チケット一覧の表示
-* チケット詳細の表示
-* チケットの編集
-* チケットのステータス変更
-* チケットの優先度設定
-* 担当者の設定
-* 期限の設定
+### 3.2 Users
 
----
+In the MVP, detailed user permissions are not implemented. All development team members are assumed to have access to the system.
 
-### 4.2 チケットの種類
+The following roles can be recorded on a ticket:
 
-チケットは以下の3種類に分類する。
-
-| 種類      | 説明                |
-| ------- | ----------------- |
-| Feature | 新しい機能を追加する        |
-| Bug     | 不具合を修正する          |
-| Task    | ドキュメント作成など、その他の作業 |
+* Assignee
+* Reporter
+* Reviewer
 
 ---
 
-### 4.3 優先度
+## 4. Functional Requirements
 
-優先度は以下の3段階とする。
+### 4.1 Ticket Management
 
-| 優先度    | 説明            |
-| ------ | ------------- |
-| High   | 優先的に対応する必要がある |
-| Medium | 通常の優先度        |
-| Low    | 緊急性が低い        |
+The system provides the following operations:
+
+* Create tickets
+* Display a ticket list
+* Display ticket details
+* Edit tickets
+* Change ticket status
+* Set ticket priority
+* Assign tickets to members
+* Set due dates
 
 ---
 
-### 4.4 ステータス
+### 4.2 Ticket Types
 
-チケットのステータスは以下とする。
+Tickets are classified into three types.
+
+| Type    | Description                      |
+| ------- | -------------------------------- |
+| Feature | Add a new feature                |
+| Bug     | Fix a defect or problem          |
+| Task    | Other work such as documentation |
+
+---
+
+### 4.3 Priority
+
+Tickets have three priority levels.
+
+| Priority | Description                |
+| -------- | -------------------------- |
+| High     | Requires priority handling |
+| Medium   | Normal priority            |
+| Low      | Low urgency                |
+
+---
+
+### 4.4 Status
+
+Tickets use the following statuses:
 
 * Open
 * In Progress
@@ -98,7 +100,7 @@ MVPでは、利用者の権限を細かく分けず、開発チームのメン�
 * Done
 * Blocked
 
-基本的な進行は以下の通りとする。
+The basic workflow is:
 
 ```text
 Open
@@ -112,7 +114,7 @@ Testing
 Done
 ```
 
-問題が発生した場合は、以下のように戻ることができる。
+If an issue is found during review or testing, the ticket can return to `In Progress`.
 
 ```text
 Review
@@ -124,64 +126,64 @@ Testing
 In Progress
 ```
 
-作業が進められない場合は `Blocked` とする。
+`Blocked` is used when work cannot proceed.
 
 ---
 
-### 4.5 受入条件
+### 4.5 Acceptance Criteria
 
-チケットには、作業完了の判断基準となる受入条件を設定できるものとする。
+Each ticket can define acceptance criteria used to determine whether the work is complete.
 
-例：
+Example:
 
 ```text
-- CSVファイルをアップロードできる
-- 不正なCSVの場合にエラーを表示する
-- 正常なCSVを読み込める
+- CSV files can be uploaded
+- An error is displayed for invalid CSV files
+- Valid CSV files can be loaded successfully
 ```
 
-受入条件を満たしたことを確認したうえで、チケットを `Done` とする。
+A ticket is marked as `Done` after its acceptance criteria have been verified.
 
 ---
 
-### 4.6 コメント
+### 4.6 Comments
 
-チケットに対してコメントを追加できるものとする。
+Users can add comments to tickets.
 
-コメントには以下を記録する。
+Each comment records:
 
-* コメント内容
-* 投稿者
-* 投稿日時
-
----
-
-### 4.7 履歴管理
-
-チケットに対する主要な変更を履歴として記録する。
-
-記録対象の例：
-
-* チケット作成
-* チケット編集
-* ステータス変更
-* 担当者変更
-* コメント追加
-
-履歴には、少なくとも以下を記録する。
-
-* 操作日時
-* 操作者
-* 操作内容
-* 対象チケット
+* Comment content
+* Author
+* Created At
 
 ---
 
-### 4.8 GitHubとの関連付け
+### 4.7 Change History
 
-チケットにGitHub IssueおよびPull Requestの番号を記録できるものとする。
+Major changes to tickets are recorded in the history.
 
-例：
+Examples include:
+
+* Ticket creation
+* Ticket updates
+* Status changes
+* Assignee changes
+* Comment creation
+
+The history records at least:
+
+* Operation timestamp
+* Actor
+* Operation
+* Target ticket
+
+---
+
+### 4.8 GitHub Association
+
+Tickets can store GitHub Issue and Pull Request numbers.
+
+Example:
 
 ```text
 Ticket: T-0001
@@ -189,47 +191,47 @@ GitHub Issue: #1
 GitHub Pull Request: #5
 ```
 
-これにより、チケットとソースコードの変更履歴を追跡できるようにする。
+This makes it possible to trace the relationship between tickets and source code changes.
 
 ---
 
-## 5. チケット項目
+## 5. Ticket Fields
 
-チケットには以下の情報を保持する。
+Each ticket stores the following information.
 
-| 項目                  | 内容                                                     |
+| Field               | Description                                            |
 | ------------------- | ------------------------------------------------------ |
-| Ticket ID           | チケットを一意に識別するID                                         |
-| Title               | チケットのタイトル                                              |
-| Description         | 作業内容・課題の説明                                             |
+| Ticket ID           | Unique identifier for the ticket                       |
+| Title               | Ticket title                                           |
+| Description         | Description of the task or issue                       |
 | Type                | Feature / Bug / Task                                   |
 | Priority            | High / Medium / Low                                    |
 | Status              | Open / In Progress / Review / Testing / Done / Blocked |
-| Assignee            | 担当者                                                    |
-| Reporter            | 作成者                                                    |
-| Reviewer            | レビュー担当者                                                |
-| Acceptance Criteria | 受入条件                                                   |
-| Due Date            | 期限                                                     |
-| GitHub Issue        | GitHub Issue番号                                         |
-| GitHub PR           | GitHub Pull Request番号                                  |
-| Created At          | 作成日時                                                   |
-| Updated At          | 更新日時                                                   |
+| Assignee            | Person responsible for the ticket                      |
+| Reporter            | Person who created the ticket                          |
+| Reviewer            | Person responsible for review                          |
+| Acceptance Criteria | Conditions for considering the work complete           |
+| Due Date            | Deadline                                               |
+| GitHub Issue        | GitHub Issue number                                    |
+| GitHub PR           | GitHub Pull Request number                             |
+| Created At          | Creation timestamp                                     |
+| Updated At          | Last update timestamp                                  |
 
 ---
 
-## 6. 非機能要件
+## 6. Non-Functional Requirements
 
-### 6.1 利用環境
+### 6.1 Environment
 
-Webブラウザから利用できるWebアプリケーションとする。
+The system is designed as a web application accessible through a web browser.
 
-### 6.2 データ保存
+### 6.2 Data Storage
 
-Google Spreadsheetをデータ保存先として使用する。
+Google Spreadsheet is used as the data store.
 
-### 6.3 開発環境
+### 6.3 Development Environment
 
-以下の技術を使用する。
+The project uses the following technologies:
 
 * Google Apps Script
 * Google Spreadsheet
@@ -239,44 +241,44 @@ Google Spreadsheetをデータ保存先として使用する。
 * Git
 * GitHub
 
-### 6.4 履歴
+### 6.4 History
 
-チケットの主要な変更について履歴を保存し、後から変更内容を確認できるようにする。
-
----
-
-## 7. 対象外とする機能
-
-MVPでは以下の機能を実装対象外とする。
-
-* ユーザー認証
-* 詳細な権限管理
-* メール通知
-* Slack等の外部サービスへの通知
-* AI機能
-* 外部データベース
-* GitHub APIを利用した自動連携
-
-これらは将来的な拡張候補とする。
+Major changes to tickets are recorded so that previous changes can be reviewed later.
 
 ---
 
-## 8. 開発方針
+## 7. Out of Scope
 
-本システム自体の開発もチケット駆動で進める。
+The following features are outside the scope of the MVP:
 
-現時点では、以下の開発フローを基本とする。
+* User authentication
+* Detailed permission management
+* Email notifications
+* Notifications through external services such as Slack
+* AI features
+* External databases
+* Automatic integration using the GitHub API
+
+These features may be considered as future extensions.
+
+---
+
+## 8. Development Approach
+
+TicketFlow itself is developed using a ticket-driven development process.
+
+The current development workflow is:
 
 ```text
 GitHub Issue
     ↓
-要件・設計確認
+Requirements / Design Review
     ↓
-実装
+Implementation
     ↓
-動作テスト
+Testing
     ↓
-Git diff確認
+Git diff Review
     ↓
 Git Commit
     ↓
@@ -285,98 +287,102 @@ Push
 Issue Close
 ```
 
-Issue、Commit、テスト結果などを可能な範囲で関連付け、開発プロセスを追跡可能な状態にする。
+GitHub Issues, commits, and test results are associated where possible to keep the development process traceable.
 
-Pull Requestやレビューについては、今後の開発プロセス拡張候補とする。
-
----
-
-## 9. MVPの完成条件
-
-以下を満たした時点でMVP完成とする。
-
-* チケットを作成できる
-* チケット一覧を確認できる
-* チケット詳細を確認できる
-* チケットを編集できる
-* ステータスを変更できる
-* コメントを追加できる
-* 主要な変更履歴を確認できる
-* Google Spreadsheetにデータを保存できる
-* GitHub Issueとチケットを関連付けられる
-* 基本的なテストを実施できる
+Pull Requests and formal code review are considered future extensions to the development process.
 
 ---
 
-## 10. 開発実績
+## 9. MVP Completion Criteria
 
-TicketFlowでは、GitHub Issueを単位として機能を分割し、
+The MVP is considered complete when the following requirements are satisfied:
 
-**「Issue作成 → 実装 → テスト → Git diff確認 → Commit → Push → Issue Close」**
-
-の流れで開発を進めています。
-
-| Issue      | 実装した機能・成果物                        | 開発経験・アピールポイント                                                      |
-| ---------- | --------------------------------- | ------------------------------------------------------------------ |
-| #1 要件定義    | `requirements.md` を作成             | システムの目的・対象ユーザー・機能範囲・MVP・非機能要件などを整理                                 |
-| #2 DB設計    | `db-design.md` を作成                | Tickets / Comments / History / Membersのデータ構造、ID・リレーションを設計          |
-| #3 画面設計    | `screen-design.md` を作成            | 一覧・詳細・作成・編集画面の構成、画面遷移、入力項目、バリデーションを設計                              |
-| #4 GAS初期構成 | GAS・Spreadsheet・clasp・GitHub連携を構築 | Google Apps Script、Google Spreadsheet、Node.js、clasp、Gitを使った開発環境を構築 |
-| #5 チケット作成  | チケット登録機能                          | 入力値検証、ID自動採番、日時記録、Historyへの作成履歴記録を実装                               |
-| #6 チケット一覧  | 一覧表示・Status/Priority/Assigneeフィルタ | Spreadsheetからデータを取得し、条件に応じて一覧を絞り込む処理を実装                            |
-| #7 チケット詳細  | チケット詳細表示                          | URLパラメータからTicket IDを取得し、対象データを表示。存在しないIDへのエラー処理も実装                 |
-| #8 チケット編集  | チケット編集・変更履歴                       | 更新前後の値を比較し、変更された項目だけHistoryへ記録する処理を実装                              |
-| #9 ステータス変更 | Status変更機能                        | Statusの値を検証し、変更日時・変更前後の値をHistoryへ記録                                |
-| #10 コメント   | コメント追加・一覧表示                       | Commentsシートへの登録、Comment ID自動採番、Ticket IDとの紐付け、入力チェックを実装            |
-| #11 履歴表示   | 変更履歴一覧表示                          | Ticket IDごとの履歴取得、History ID・変更内容・操作者・日時の表示、履歴更新を実装                 |
-| #12 メンバー選択 | Assignee / Reviewer選択機能           | Membersシートからメンバー情報を取得し、担当者・レビュアーをプルダウンから選択。Member IDのバリデーションも実装    |
+* Tickets can be created
+* Tickets can be listed
+* Ticket details can be viewed
+* Tickets can be edited
+* Ticket status can be changed
+* Comments can be added
+* Major ticket changes can be viewed in the history
+* Data can be stored in Google Spreadsheet
+* Tickets can be associated with GitHub Issues
+* Basic testing can be performed
 
 ---
 
-## 開発プロセス
+# 10. Development Experience
 
-各Issueについて、以下の流れを基本ルールとして開発しています。
+TicketFlow is developed by dividing the work into GitHub Issues and following the workflow:
+
+**Issue Creation → Implementation → Testing → Git diff Review → Commit → Push → Issue Close**
+
+| Issue                      | Feature / Deliverable                                        | Development Experience                                                                                          |
+| -------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| #1 Requirements Definition | Created `requirements.md`                                    | Defined the project purpose, target users, functional scope, MVP, and non-functional requirements               |
+| #2 Database Design         | Created `db-design.md`                                       | Designed the data structures, IDs, and relationships for Tickets / Comments / History / Members                 |
+| #3 Screen Design           | Created `screen-design.md`                                   | Designed list, detail, create, and edit screens, including navigation, input fields, and validation             |
+| #4 GAS Initial Setup       | Set up GAS, Spreadsheet, clasp, and GitHub integration       | Built the development environment using Google Apps Script, Google Spreadsheet, Node.js, clasp, and Git         |
+| #5 Ticket Creation         | Implemented ticket creation                                  | Implemented input validation, automatic ID generation, timestamp recording, and creation history                |
+| #6 Ticket List             | Implemented ticket list and Status/Priority/Assignee filters | Implemented data retrieval from Spreadsheet and filtering based on selected conditions                          |
+| #7 Ticket Details          | Implemented ticket detail view                               | Retrieved tickets using Ticket ID from URL parameters and handled invalid/non-existent IDs                      |
+| #8 Ticket Editing          | Implemented ticket editing and change history                | Compared previous and new values and recorded only changed fields in History                                    |
+| #9 Status Change           | Implemented ticket status changes                            | Validated status values and recorded the previous/new values and update timestamp in History                    |
+| #10 Comments               | Implemented comment creation and display                     | Implemented comment registration, automatic Comment ID generation, Ticket ID association, and input validation  |
+| #11 History                | Implemented ticket history display                           | Retrieved history by Ticket ID and displayed History ID, changes, actor, and timestamp                          |
+| #12 Member Selection       | Implemented Assignee / Reviewer selection                    | Retrieved member data from the Members sheet, provided dropdown selection, and implemented Member ID validation |
+
+---
+
+## Development Process
+
+Each Issue follows the following development process.
 
 ```text
-GitHub Issue作成
+Create GitHub Issue
        ↓
-要件・設計確認
+Review Requirements / Design
        ↓
-実装
+Implementation
        ↓
-動作テスト
+Testing
        ↓
-Git diff確認
+Review Git diff
        ↓
 Commit
        ↓
 Push
        ↓
-Issue Close
+Close Issue
 ```
 
-また、開発ルールとして **「No Ticket, No Work」** を設定し、Issueを作成してから実装を開始することを基本としています。
+The project also follows the development rule:
+
+**"No Ticket, No Work"**
+
+Implementation is started after the corresponding GitHub Issue has been created.
 
 ---
 
-## 現在実装されている主な機能
+## Current Features
 
-* チケット作成
-* チケット一覧表示
-* Status / Priority / Assigneeによるフィルタ
-* チケット詳細表示
-* チケット編集
-* ステータス変更
-* コメント追加・表示
-* 変更履歴表示
-* Membersシートを利用したAssignee / Reviewer選択
-* 入力値バリデーション
-* Member IDバリデーション
-* 操作履歴の記録
+The following features are currently implemented:
+
+* Ticket creation
+* Ticket list display
+* Filtering by Status / Priority / Assignee
+* Ticket detail display
+* Ticket editing
+* Ticket status changes
+* Comment creation and display
+* Change history display
+* Assignee / Reviewer selection using the Members sheet
+* Input validation
+* Member ID validation
+* Change history recording
 
 ---
 
-## 使用技術
+## Technology Stack
 
 * Google Apps Script
 * Google Spreadsheet
@@ -387,4 +393,3 @@ Issue Close
 * GitHub
 * clasp
 * Node.js
-
