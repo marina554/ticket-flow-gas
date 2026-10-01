@@ -309,6 +309,12 @@ The MVP is considered complete when the following requirements are satisfied:
 * Basic testing can be performed
 
 ---
+## Screenshots
+
+### Ticket List
+
+![Ticket List](docs/images/ticket-list.png)
+---
 
 # 10. Development Experience
 
