@@ -310,6 +310,12 @@ Pull Requestやレビューについては、今後の開発プロセス拡張�
 
 ---
 
+## スクリーンショット
+
+### Ticket List
+
+![Ticket List](docs/images/ticket-list.png)
+
 ## 10. 開発実績
 
 TicketFlowでは、GitHub Issueを単位として機能を分割し、
